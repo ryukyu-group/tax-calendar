@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>法人向け 税務・労務カレンダー</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+        }
+        .event-dot {
+            flex-shrink: 0;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .event-tax { background-color: #3b82f6; } /* Blue */
+        .event-labor { background-color: #16a34a; } /* Green */
+        .event-other { background-color: #f97316; } /* Orange */
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">法人向け 税務・労務カレンダー</h1>
+            <div class="mt-6 flex justify-center items-center gap-3">
+                <label for="fiscal-month-selector" class="text-lg text-gray-700">決算月を選択:</label>
+                <select id="fiscal-month-selector" class="bg-white border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                    <option value="0">1月</option>
+                    <option value="1">2月</option>
+                    <option value="2" selected>3月</option>
+                    <option value="3">4月</option>
+                    <option value="4">5月</option>
+                    <option value="5">6月</option>
+                    <option value="6">7月</option>
+                    <option value="7">8月</option>
+                    <option value="8">9月</option>
+                    <option value="9">10月</option>
+                    <option value="10">11月</option>
+                    <option value="11">12月</option>
+                </select>
+            </div>
+        </header>
+
+        <main id="calendar-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Calendar months will be injected here by JavaScript -->
+        </main>
+
+        <footer class="mt-12 text-center text-sm text-gray-500">
+            <div class="max-w-3xl mx-auto bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <h3 class="font-semibold text-yellow-800">【ご注意】</h3>
+                <p class="mt-2 text-yellow-700">
+                    このカレンダーは一般的なスケジュールをまとめたものです。個別の状況によっては手続きの時期が異なる場合があります。<br>
+                    正確な情報については、必ず税理士・社会保険労務士等の専門家や、管轄の税務署・労働基準監督署等にご確認ください。
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const fiscalMonthSelector = document.getElementById('fiscal-month-selector');
+        const calendarGrid = document.getElementById('calendar-grid');
+
+        // 毎月発生する定例業務
+        const recurringEvents = [
+            { day: "毎月10日", task: "源泉所得税・住民税特別徴収分の納付", description: "納期特例を受けていない場合", type: "tax" },
+            { day: "毎月末日", task: "社会保険料の納付", description: "健康保険・厚生年金保険", type: "labor" }
+        ];
+
+        /**
+         * 選択された決算月に基づいてイベントデータを生成する関数
+         * @param {number} endMonth - 決算月 (0=1月, 1=2月, ...)
+         * @returns {Array} 12ヶ月分のイベントデータ
+         */
+        function generateTaxEvents(endMonth) {
+            // 12ヶ月分の基本構造を作成
+            const months = Array.from({ length: 12 }, (_, i) => ({
+                month: `${i + 1}月`,
+                events: []
+            }));
+
+            // --- 決算月に連動するイベント ---
+            // 1. 確定申告・納税 (決算月の2ヶ月後)
+            const finalReturnMonth = (endMonth + 2) % 12;
+            months[finalReturnMonth].events.push(
+                { day: "末日", task: "確定申告と納税", description: "法人税、消費税、地方税等の申告・納付", type: "tax" }
+            );
+
+            // 2. 中間申告・納税 (事業年度開始から6ヶ月経過した日の2ヶ月後)
+            const interimPeriodEndMonth = (endMonth + 6) % 12;
+            const interimReturnMonth = (interimPeriodEndMonth + 2) % 12;
+            months[interimReturnMonth].events.push(
+                { day: "末日", task: "中間申告と納税", description: "法人税、消費税等の中間申告・納付", type: "tax" }
+            );
+
+            // --- 日付が固定のイベント ---
+            // 労働保険の年度更新 (6月〜7月)
+            months[5].events.push({ day: "1日～", task: "労働保険の年度更新 開始", description: "申告・納付手続き期間", type: "labor" });
+            months[6].events.push({ day: "10日", task: "労働保険の年度更新 期限", description: "前年度の精算と今年度の概算保険料を申告・納付", type: "labor" });
+            
+            // 労働保険料の延納 (10月, 1月)
+            months[9].events.push({ day: "末日", task: "労働保険料の納付（第2期）", description: "延納（分割納付）の場合", type: "labor" });
+            months[0].events.push({ day: "末日", task: "労働保険料の納付（第3期）", description: "延納（分割納付）の場合", type: "labor" });
+
+            // 源泉所得税の納期特例 (7月, 1月)
+            months[6].events.push({ day: "10日", task: "源泉所得税の納付（納期特例）", description: "1月～6月分", type: "tax" });
+            months[0].events.push({ day: "20日", task: "源泉所得税の納付（納期特例）", description: "7月～12月分", type: "tax" });
+            
+            // 年末調整 (12月)
+            months[11].events.push({ day: "－", task: "年末調整", description: "従業員の所得税の過不足を調整", type: "tax" });
+
+            // 1月の各種手続き
+            months[0].events.push({ day: "末日", task: "償却資産税の申告", description: "固定資産税の申告", type: "other" });
+            months[0].events.push({ day: "末日", task: "法定調書・給与支払報告書の提出", description: "税務署と市区町村へ提出", type: "tax" });
+
+            return months;
+        }
+
+        /**
+         * カレンダー全体を再描画する関数
+         * @param {number} endMonth - 決算月 (0=1月, 1=2月, ...)
+         */
+        function renderCalendar(endMonth) {
+            calendarGrid.innerHTML = ''; // 既存のカレンダーをクリア
+            const taxEvents = generateTaxEvents(endMonth);
+
+            taxEvents.forEach(monthData => {
+                const monthCard = document.createElement('div');
+                monthCard.className = 'bg-white rounded-xl shadow-md overflow-hidden transition-transform transform hover:-translate-y-1 flex flex-col';
+
+                let eventsHtml = '';
+                // その月の主要イベント
+                if (monthData.events.length > 0) {
+                    // 日付でソートして表示を整える
+                    monthData.events.sort((a,b) => (a.day > b.day) ? 1 : -1);
+                    monthData.events.forEach(event => {
+                        eventsHtml += `
+                            <li class="flex items-start py-3">
+                                <div class="event-dot event-${event.type} mt-1.5 mr-3"></div>
+                                <div>
+                                    <p class="font-semibold text-gray-800">${event.day}: ${event.task}</p>
+                                    <p class="text-sm text-gray-500">${event.description}</p>
+                                </div>
+                            </li>
+                        `;
+                    });
+                } else {
+                     eventsHtml += `<li class="py-3 text-gray-400 text-sm">この月の主要なイベントはありません。</li>`;
+                }
+
+                // 毎月の定例業務
+                recurringEvents.forEach(event => {
+                     eventsHtml += `
+                        <li class="flex items-start py-3 border-t border-dashed border-gray-200 opacity-70">
+                            <div class="event-dot event-${event.type} mt-1.5 mr-3"></div>
+                            <div>
+                                <p class="font-semibold text-gray-700">${event.day}: ${event.task}</p>
+                                <p class="text-sm text-gray-500">${event.description}</p>
+                            </div>
+                        </li>
+                    `;
+                });
+
+                monthCard.innerHTML = `
+                    <div class="bg-gray-800 text-white p-4">
+                        <h2 class="text-2xl font-bold">${monthData.month}</h2>
+                    </div>
+                    <div class="p-4 flex-grow">
+                        <ul class="divide-y divide-gray-200">
+                            ${eventsHtml}
+                        </ul>
+                    </div>
+                `;
+                calendarGrid.appendChild(monthCard);
+            });
+        }
+
+        // ドロップダウンメニューが変更されたときにカレンダーを再描画
+        fiscalMonthSelector.addEventListener('change', (e) => {
+            const selectedMonth = parseInt(e.target.value, 10);
+            renderCalendar(selectedMonth);
+        });
+
+        // 初期表示（デフォルトは3月決算）
+        renderCalendar(2);
+
+    </script>
+</body>
+</html>
