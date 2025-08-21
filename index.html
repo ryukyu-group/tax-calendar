@@ -25,10 +25,10 @@
 
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
         <header class="text-center mb-8">
-            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">法人向け 税務・労務カレンダー</h1>
-            <div class="mt-6 flex justify-center items-center gap-3">
-                <label for="fiscal-month-selector" class="text-lg text-gray-700">決算月を選択:</label>
-                <select id="fiscal-month-selector" class="bg-white border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">法人向け 税務・労務カレンダー</h1>
+            <div class="mt-6 flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-3">
+                <label for="fiscal-month-selector" class="text-base sm:text-lg text-gray-700">決算月を選択:</label>
+                <select id="fiscal-month-selector" class="bg-white border border-gray-300 text-gray-900 text-base sm:text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2 w-full max-w-xs sm:w-auto">
                     <option value="0">1月</option>
                     <option value="1">2月</option>
                     <option value="2" selected>3月</option>
@@ -101,6 +101,9 @@
             months[5].events.push({ day: "1日～", task: "労働保険の年度更新 開始", description: "申告・納付手続き期間", type: "labor" });
             months[6].events.push({ day: "10日", task: "労働保険の年度更新 期限", description: "前年度の精算と今年度の概算保険料を申告・納付", type: "labor" });
             
+            // 算定基礎届の提出 (7月)
+            months[6].events.push({ day: "1日～10日", task: "算定基礎届の提出", description: "健康保険・厚生年金の定時決定のため", type: "labor" });
+
             // 労働保険料の延納 (10月, 1月)
             months[9].events.push({ day: "末日", task: "労働保険料の納付（第2期）", description: "延納（分割納付）の場合", type: "labor" });
             months[0].events.push({ day: "末日", task: "労働保険料の納付（第3期）", description: "延納（分割納付）の場合", type: "labor" });
