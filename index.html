@@ -16,19 +16,20 @@
             height: 8px;
             border-radius: 50%;
         }
-        .event-tax { background-color: #3b82f6; } /* Blue */
-        .event-labor { background-color: #16a34a; } /* Green */
-        .event-other { background-color: #f97316; } /* Orange */
+        /* Custom color palette */
+        .event-tax { background-color: #F08454; } /* Orange */
+        .event-labor { background-color: #3FC1C6; } /* Cyan */
+        .event-other { background-color: #384B99; } /* Blue */
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-gray-100 text-gray-800">
 
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
         <header class="text-center mb-8">
-            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">法人向け 税務・労務カレンダー</h1>
+            <h1 class="text-2xl sm:text-3xl font-bold text-black">法人向け 税務・労務カレンダー</h1>
             <div class="mt-6 flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-3">
                 <label for="fiscal-month-selector" class="text-base sm:text-lg text-gray-700">決算月を選択:</label>
-                <select id="fiscal-month-selector" class="bg-white border border-gray-300 text-gray-900 text-base sm:text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2 w-full max-w-xs sm:w-auto">
+                <select id="fiscal-month-selector" class="bg-white border border-gray-300 text-black text-base sm:text-lg rounded-lg focus:ring-[#384B99] focus:border-[#384B99] p-2 w-full max-w-xs sm:w-auto">
                     <option value="0">1月</option>
                     <option value="1">2月</option>
                     <option value="2" selected>3月</option>
@@ -50,9 +51,9 @@
         </main>
 
         <footer class="mt-12 text-center text-sm text-gray-500">
-            <div class="max-w-3xl mx-auto bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <h3 class="font-semibold text-yellow-800">【ご注意】</h3>
-                <p class="mt-2 text-yellow-700">
+            <div class="max-w-3xl mx-auto bg-gray-200 border border-gray-300 rounded-lg p-4">
+                <h3 class="font-semibold text-black">【ご注意】</h3>
+                <p class="mt-2 text-gray-800">
                     このカレンダーは一般的なスケジュールをまとめたものです。個別の状況によっては手続きの時期が異なる場合があります。<br>
                     正確な情報については、必ず税理士・社会保険労務士等の専門家や、管轄の税務署・労働基準監督署等にご確認ください。
                 </p>
@@ -61,6 +62,19 @@
     </div>
 
     <script>
+        // Set custom colors for Tailwind CSS
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'custom-blue': '#384B99',
+                        'custom-orange': '#F08454',
+                        'custom-cyan': '#3FC1C6',
+                    }
+                }
+            }
+        }
+
         const fiscalMonthSelector = document.getElementById('fiscal-month-selector');
         const calendarGrid = document.getElementById('calendar-grid');
 
@@ -144,31 +158,31 @@
                             <li class="flex items-start py-3">
                                 <div class="event-dot event-${event.type} mt-1.5 mr-3"></div>
                                 <div>
-                                    <p class="font-semibold text-gray-800">${event.day}: ${event.task}</p>
-                                    <p class="text-sm text-gray-500">${event.description}</p>
+                                    <p class="font-semibold text-black">${event.day}: ${event.task}</p>
+                                    <p class="text-sm text-gray-600">${event.description}</p>
                                 </div>
                             </li>
                         `;
                     });
                 } else {
-                     eventsHtml += `<li class="py-3 text-gray-400 text-sm">この月の主要なイベントはありません。</li>`;
+                     eventsHtml += `<li class="py-3 text-gray-500 text-sm">この月の主要なイベントはありません。</li>`;
                 }
 
                 // 毎月の定例業務
                 recurringEvents.forEach(event => {
                      eventsHtml += `
-                        <li class="flex items-start py-3 border-t border-dashed border-gray-200 opacity-70">
+                        <li class="flex items-start py-3 border-t border-dashed border-gray-200 opacity-80">
                             <div class="event-dot event-${event.type} mt-1.5 mr-3"></div>
                             <div>
-                                <p class="font-semibold text-gray-700">${event.day}: ${event.task}</p>
-                                <p class="text-sm text-gray-500">${event.description}</p>
+                                <p class="font-semibold text-gray-800">${event.day}: ${event.task}</p>
+                                <p class="text-sm text-gray-600">${event.description}</p>
                             </div>
                         </li>
                     `;
                 });
 
                 monthCard.innerHTML = `
-                    <div class="bg-gray-800 text-white p-4">
+                    <div class="bg-[#384B99] text-white p-4">
                         <h2 class="text-2xl font-bold">${monthData.month}</h2>
                     </div>
                     <div class="p-4 flex-grow">
